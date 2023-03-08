@@ -19,6 +19,12 @@ pub mod sound {
 
     static WORKER_CHANNEL: Lazy<Mutex<Sender<String>>> = Lazy::new(|| Mutex::new(new_worker()));
 
+    pub fn restore_gloabal_data() -> bool {
+        let mut map = GLOBAL_DATA.lock().unwrap();
+        map.clear();
+        true
+    }
+
     fn new_worker() -> Sender<String> {
         let (tx, rx) = flume::unbounded();
         thread::spawn(move || {
@@ -32,15 +38,15 @@ pub mod sound {
         if tx.is_disconnected() {
             *tx = new_worker()
         }
-        tx.send(format!("{};{}", name, volume.to_string())).expect("Couldn't send name to threadpool");
-        
+        tx.send(format!("{};{}", name, volume.to_string()))
+            .expect("Couldn't send name to threadpool");
     }
 
     pub fn worker(rx_channel: Receiver<String>) {
         let (_stream, stream_handle) = OutputStream::try_default().unwrap();
         loop {
             if let Ok(raw) = rx_channel.recv_timeout(Duration::from_secs(20)) {
-                // The data sent format is <file_name>;<volume>. 
+                // The data sent format is <file_name>;<volume>.
                 let data: Vec<&str> = raw.split(";").collect();
                 let name = data[0].to_string();
                 let volume = data[1].parse::<u16>().expect("Cannot parse volume.");

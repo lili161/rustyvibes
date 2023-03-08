@@ -1,10 +1,10 @@
 pub mod rustyvibes {
-
     use rdev::{listen, Event};
     use serde_json;
     use serde_json::{Map, Value};
     use std::error::Error;
     use std::fs;
+    use std::thread::{self, JoinHandle};
 
     pub use crate::keycode::key_code;
     pub use crate::play_sound::sound;
@@ -37,7 +37,7 @@ pub mod rustyvibes {
         }
     }
 
-    pub fn start_rustyvibes(args: String, vol: u16) {
+    pub fn start_rustyvibes(args: String, vol: u16) -> JoinHandle<()> {
         {
             #[cfg(any(target_os = "macos", target_os = "linux"))]
             unsafe {
@@ -64,9 +64,15 @@ pub mod rustyvibes {
             json_file.event_handler(event, args.clone(), vol);
         };
 
-        if let Err(error) = listen(event_handler) {
-            println!("Error: {:?}", error)
-        }
+        thread::spawn(|| {
+            if let Err(error) = listen(event_handler) {
+                println!("Error: {:?}", error)
+            }
+        })
+    }
+
+    pub fn restart_rustyvibers() {
+        sound::restore_gloabal_data();
     }
 
     use once_cell::sync::Lazy;
@@ -75,7 +81,12 @@ pub mod rustyvibes {
 
     static KEY_DEPRESSED: Lazy<Mutex<HashSet<i32>>> = Lazy::new(|| Mutex::new(HashSet::new()));
 
-    fn callback(event: Event, json_file: serde_json::Map<std::string::String, serde_json::Value>, directory: String, vol: u16) {
+    fn callback(
+        event: Event,
+        json_file: serde_json::Map<std::string::String, serde_json::Value>,
+        directory: String,
+        vol: u16,
+    ) {
         match event.event_type {
             rdev::EventType::KeyPress(key) => {
                 let key_code = key_code::code_from_key(key);

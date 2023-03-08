@@ -1,6 +1,4 @@
-
 use clap::Parser;
-
 
 #[derive(Debug, Parser)]
 #[clap(
@@ -10,12 +8,11 @@ use clap::Parser;
 )]
 #[clap(propagate_version = true)]
 pub struct ArgParser {
-    
     /// The path of the soundpack
     pub soundpack: String,
 
-    /// The volume to be set. 
+    /// The volume to be set.
     /// Default: 100
     #[arg(short, long)]
-    pub volume: Option<u16>
+    pub volume: Option<u16>,
 }

@@ -86,7 +86,6 @@ pub mod key_code {
     const DOT: i32 = 52;
     const SLASH: i32 = 53;
 
-    
     pub fn code_from_key(key: Key) -> Option<i32> {
         match key {
             Key::Alt => Some(ALT),
@@ -166,7 +165,7 @@ pub mod key_code {
             Key::Dot => Some(DOT),
             Key::Slash => Some(SLASH),
             Key::Function => Some(FUNCTION),
-            _ => None
+            _ => None,
         }
     }
 }
