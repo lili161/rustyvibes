@@ -2,8 +2,8 @@ mod args;
 mod keycode;
 mod play_sound;
 mod start;
-use fltk::{prelude::*, *};
-use std::{collections::HashMap, fs, thread::JoinHandle};
+use fltk::{prelude::*, *, image::PngImage};
+use std::{collections::HashMap, fs, thread::JoinHandle,file};
 
 const ASCII_ART: &str = r#"
 ██████  ██    ██ ███████ ████████ ██    ██ ██    ██ ██ ██████  ███████ ███████ 
@@ -13,7 +13,7 @@ const ASCII_ART: &str = r#"
 ██   ██  ██████  ███████    ██       ██      ████   ██ ██████  ███████ ███████
 "#;
 fn main() {
-    let app = app::App::default();
+    let app = app::App::default().with_scheme(app::Scheme::Oxy);
     let mut sound_packs = Vec::<String>::new();
     let mut sound_packs_map = HashMap::<String, String>::new();
     println!("{}", ASCII_ART);
@@ -31,7 +31,10 @@ fn main() {
     }
     let sound_packs_copy = sound_packs.clone();
     let sound_packs_map_copy = sound_packs_map.clone();
-    let mut my_window = window::Window::new(100, 100, 350, 120, "rustyvibes -gui");
+    let f = fs::read("./icon.png");
+    let a = PngImage::from_data(&f.unwrap()).unwrap();
+    let mut my_window = window::Window::new(100, 100, 350, 120, "rustyvibes -gui").center_screen();
+    my_window.set_icon(Some(a));
     let flex = group::Flex::default()
         .with_size(200, 100)
         .column()
